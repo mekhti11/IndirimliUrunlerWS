@@ -1,0 +1,18 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="hibernate.connection.url">jdbc:mysql://159.203.162.166:3306/indirimli_urun</property>
+		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.password">IsmekDers1?</property>
+		<property name="hibernate.connection.pool_size">10</property>
+		<property name="show_sql">true</property>
+		<property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+		<property name="hibernate.hbm2ddl.auto">update</property>
+		<property name="hibernate.connection.isolation">8</property>
+		<mapping class="com.ismek.entity.Kullanici" />
+		<mapping class="com.ismek.entity.Urun" />
+	</session-factory>
+</hibernate-configuration>
