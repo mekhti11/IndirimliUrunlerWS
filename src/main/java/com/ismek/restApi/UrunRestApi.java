@@ -13,7 +13,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.ismek.entity.BaseReturn;
@@ -23,7 +25,7 @@ import com.ismek.enums.HataTipi;
 import com.ismek.util.SendEmail;
 import com.ismek.util.SessionUtil;
 
-@Path("/urunRestApi")
+@Path("urunRestApi")
 public class UrunRestApi {
 	
 	private Session session;
@@ -40,7 +42,37 @@ public class UrunRestApi {
 		BaseReturn<List<Urun>> result = new BaseReturn<List<Urun>>(HataTipi.SUCCESS.getCode(), HataTipi.SUCCESS.getMessage(), null);
 		List<Urun> uruns = new ArrayList<Urun>();
 		try {
+			Criteria criteria = session.createCriteria(Urun.class);
+			criteria.add(Restrictions.ge("basTarih", new Date()));
+			criteria.add(Restrictions.le("bitTarih", new Date()));
 			uruns=session.createCriteria(Urun.class).list();
+			result.setData(uruns);
+		}
+		catch(Exception e) {
+			result.setCode(HataTipi.SYSTEM_ERROR.getCode());
+			result.setMessage(HataTipi.SYSTEM_ERROR.getMessage());
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	@GET
+    @Path("/getUrunListByCount")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public BaseReturn<List<Urun>> getUrunListByCount(@QueryParam("recordsCount") long recordsCount){
+		BaseReturn<List<Urun>> result = new BaseReturn<List<Urun>>(HataTipi.SUCCESS.getCode(), HataTipi.SUCCESS.getMessage(), null);
+		List<Urun> uruns = new ArrayList<Urun>();
+		try {
+			Criteria count = session.createCriteria(Urun.class);
+	        count.setProjection(Projections.rowCount());
+	        Long total = (Long) count.uniqueResult();
+			
+	        Criteria criteria = session.createCriteria(Urun.class);
+	        criteria.setFirstResult((int)(total-recordsCount));
+	        criteria.setMaxResults((int)recordsCount);
+			
+			uruns=criteria.list();
 			result.setData(uruns);
 		}
 		catch(Exception e) {
@@ -63,7 +95,7 @@ public class UrunRestApi {
             session.beginTransaction();
             session.saveOrUpdate(kullanici);
             session.getTransaction().commit();
-            SendEmail.sendEmail(kullanici.getEmail(), "http://159.203.162.166:8080/IndirimliUrunlerWS/rest/urunRestApi/uyelikAktivasyon?guid="+kullanici.getGuid());
+            SendEmail.sendEmail(kullanici.getEmail(), "http://159.203.162.166:8081/IndirimliUrunlerWS/rest/urunRestApi/uyelikAktivasyon?guid="+kullanici.getGuid());
         } catch (Exception e) {
             e.printStackTrace();
             result.setCode(HataTipi.SYSTEM_ERROR.getCode());

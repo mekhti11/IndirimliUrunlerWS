@@ -56,6 +56,10 @@ public class Urun implements Serializable{
 	@Column
 	private Date bitTarih;
 	
+	public Urun() {
+		
+	}
+	
 	public Urun(long id, String adi, double fiyat) {
 		super();
 		this.id = id;
